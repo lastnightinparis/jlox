@@ -1,17 +1,5 @@
 package forkjoin.jlox.scanner;
 
-import static forkjoin.jlox.tokens.TokenType.BANG;
-import static forkjoin.jlox.tokens.TokenType.BANG_EQUAL;
-import static forkjoin.jlox.tokens.TokenType.COMMA;
-import static forkjoin.jlox.tokens.TokenType.DOT;
-import static forkjoin.jlox.tokens.TokenType.EOF;
-import static forkjoin.jlox.tokens.TokenType.LEFT_BRACE;
-import static forkjoin.jlox.tokens.TokenType.LEFT_PAREN;
-import static forkjoin.jlox.tokens.TokenType.MINUS;
-import static forkjoin.jlox.tokens.TokenType.PLUS;
-import static forkjoin.jlox.tokens.TokenType.RIGHT_BRACE;
-import static forkjoin.jlox.tokens.TokenType.RIGHT_PAREN;
-import static forkjoin.jlox.tokens.TokenType.SEMICOLON;
 import static forkjoin.jlox.tokens.TokenType.*;
 
 import forkjoin.jlox.Lox;
@@ -64,6 +52,23 @@ public class Scanner {
             case '>':
                 addToken(match('=') ? GREATER_EQUAL : GREATER);
                 break;
+            case '/':
+                if (match('/')) {
+                    // A comment goes until the end of the line.
+                    while (peek() != '\n' && !isAtEnd()) advance();
+                } else {
+                    addToken(SLASH);
+                }
+                break;
+            case ' ':
+            case '\r':
+            case '\t':
+                // Ignore whitespace.
+                break;
+
+            case '\n':
+                line++;
+                break;
             default:
                 Lox.error(line, "Unexpected character.");
                 break;
@@ -89,6 +94,11 @@ public class Scanner {
 
         current++;
         return true;
+    }
+
+    private char peek() {
+        if (isAtEnd()) return '\0';
+        return source.charAt(current);
     }
 
     private boolean isAtEnd() {
